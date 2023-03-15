@@ -1,13 +1,11 @@
 var express = require('express');
 var dotenv = require('dotenv');
 var cors = require('cors');
-var mongoose = require('mongoose');
 const winston = require("winston");
 const routerRegister = require("./routes/register");
 const routerLogin = require("./routes/login");
 const Joi = require("joi");
 const fs = require('fs');
-//const { User } = require("./models/User");
 
 const userprofile = require("./routes/userprofile");
 const formData = require('express-form-data');
@@ -42,12 +40,9 @@ function isEmpty(val){
   return (val === undefined || val == null || val.length <= 0) ? true : false;
 }
 
-
 //Search
 app.get('/api/v1/search/:userid', async (req, res, next) => {
   console.log('search', req.params.userid)
-  //let rawdata = fs.readFileSync('models/USER_DATA.json');
-  //userdata = JSON.parse(rawdata)
   if (isNaN(Number(req.params.userid))) {
     console.log("inside null check search")
     return res.status(500).json(
