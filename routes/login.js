@@ -4,13 +4,10 @@ const Joi = require("joi");
 const express = require("express");
 const db = require('../db');
 const winston = require("winston");
-var dotenv = require('dotenv');
 
 //export const routerLogin = express.Router();
 const routerLogin = express.Router();
 
-//env config
-dotenv.config()
 
 routerLogin.get('/', (req, res, next) => {
     res.send("Welcome to LocalM Login")

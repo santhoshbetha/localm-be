@@ -267,6 +267,7 @@ app.patch('/api/v1/user/:userid/removefromshortlist', async (req, res) => {
 const port = process.env.PORT || 8000
 app.listen(port , () => {
   console.log(`server running on port ${port}`)
+  console.log("PORT PRINT", process.env.PORT)
 });
 
 module.exports = app;
