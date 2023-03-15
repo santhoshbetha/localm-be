@@ -26,9 +26,10 @@ app.use("/api/v1/user/userprofile", userprofile);
 
 //Get method
 app.get('/', (req, res, next) => {
-    res.send("Welcome to LocalM")
+    
     const secretKey = process.env.LOCALM_SECRET_KEY
         console.log("secretKey",secretKey)
+        res.send("Welcome to LocalM new", secretKey)
 })
 
 function isNull(value) {
