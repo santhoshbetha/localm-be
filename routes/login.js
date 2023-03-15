@@ -10,7 +10,7 @@ var dotenv = require('dotenv');
 const routerLogin = express.Router();
 
 //env config
-//dotenv.config()
+dotenv.config()
 
 routerLogin.get('/', (req, res, next) => {
     res.send("Welcome to LocalM Login")
