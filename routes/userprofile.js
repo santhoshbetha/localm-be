@@ -1,22 +1,8 @@
 const express = require("express");
 const winston = require("winston");
 const router = express.Router();
-const { User } = require("../models/user");
 const fs = require('fs')
 const db = require('../db')
-
-/*
-router.get("/:username/userdata", async (req, res, next) => {
-    console.log('user data here')
-    let rawdata = fs.readFileSync('./models/USER_DATA.json');
-    userdata = JSON.parse(rawdata)
-    //res.status(200).json(userdata)
-    
-    res.status(200).json({
-      status: "success",
-      userdata,
-    })
-});*/
 
 //Search
 router.get('/:userid/profiledata', async (req, res, next) => {
