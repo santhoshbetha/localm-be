@@ -26,7 +26,7 @@ app.use("/api/v1/user/userprofile", userprofile);
 
 //Get method
 app.get('/', (req, res, next) => {
-        res.send("Welcome to LocalM new")
+    res.send("Welcome to LocalM")
 })
 
 function isNull(value) {
@@ -267,7 +267,6 @@ app.patch('/api/v1/user/:userid/removefromshortlist', async (req, res) => {
 const port = process.env.PORT || 8000
 app.listen(port , () => {
   console.log(`server running on port ${port}`)
-  console.log("PORT PRINT", process.env.PORT)
 });
 
 module.exports = app;

@@ -50,12 +50,6 @@ routerImage.get('/', (req, res, next) => {
   res.send("Welcome to LocalM Image")
 })
 
-/*
-routerImage.post('/', (req, res, next) => {
-  console.log("POST image-upoad 1" )
-  res.send("Welcome to LocalM Image POST")
-})*/
-
 routerImage.post('/:userid/:imageid',  (req, res, next) => {
     var re = /(?:\.([^.]+))?$/;
     let userid = req.params.userid

@@ -6,9 +6,9 @@ const db = require('../db')
 
 //Search
 router.get('/:userid/profiledata', async (req, res, next) => {
-  console.log('get profile', req.params.userid)
+  console.log('get profiledata', req.params.userid)
   try {
-    results = await db.query('SELECT firstname, lastname, bio, email, phonenumber, instagram, facebook, shortlist FROM users \
+    results = await db.query('SELECT firstname, lastname, bio, email, phonenumber, instagram, facebook, longitude, shortlist FROM users \
                           WHERE userid = $1', [req.params.userid]);
      // console.log("profile data ", results)
       res.status(200).json({

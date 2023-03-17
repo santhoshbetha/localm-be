@@ -8,7 +8,6 @@ const winston = require("winston");
 //export const routerLogin = express.Router();
 const routerLogin = express.Router();
 
-
 routerLogin.get('/', (req, res, next) => {
     res.send("Welcome to LocalM Login")
 })
@@ -54,7 +53,6 @@ routerLogin.post('/', async (req, res) => {
       //  console.log("here 3", { _id: user._id, firstname: user.firstname, email: user.email})
 
         const secretKey = process.env.LOCALM_SECRET_KEY
-        console.log("secretKey",secretKey)
         const token = await jwt.sign({ _id: user.rows[0].userid, firstname: user.firstname, email: user.email}, secretKey);
 
         console.log("POST LOGIN 6")
