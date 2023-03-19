@@ -25,7 +25,12 @@ routerRegister.post('/', async (req, res) => {
         /*let user = await User.findOne({email: req.body.email});*/
         //SELECT COUNT(*) FROM address WHERE address_id = 100;
        // const results = await db.query('COUNT(*) FROM users WHERE email = $1', [req.body.email]);
-        const userExists = await db.query('SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)', [req.body.email]);
+        const userExists = await db.query('SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 or phonenumber = $2)', 
+            [
+              req.body.email,
+              req.body.phonenumber
+            ]);
+            
         console.log("userExists :", userExists.rows[0].exists)
         if (userExists.rows[0].exists) {
           return res.status(400).send("User with that email already exists");

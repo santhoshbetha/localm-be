@@ -8,7 +8,8 @@ const db = require('../db')
 router.get('/:userid/profiledata', async (req, res, next) => {
   console.log('get profiledata', req.params.userid)
   try {
-    results = await db.query('SELECT firstname, lastname, bio, email, phonenumber, instagram, facebook, longitude, shortlist FROM users \
+    results = await db.query('SELECT firstname, lastname, bio, email, phonenumber, instagram, facebook, longitude, shortlist \
+                                     FROM users \
                           WHERE userid = $1', [req.params.userid]);
      // console.log("profile data ", results)
       res.status(200).json({
@@ -66,8 +67,13 @@ router.patch('/:userid/:geodata', async (req, res, next) => {
 
 //https://stackoverflow.com/questions/21759852/easier-way-to-update-data-with-node-postgres
 
+function isEmpty(val){
+  return (val === undefined || val == null || val.length <= 0) ? true : false;
+}
+
 function editProfileByID (id, cols) {
   // Setup static beginning of query
+ // console.log("editProfileByID", cols)
   var query = ['UPDATE users'];
   query.push('SET');
 
@@ -76,8 +82,7 @@ function editProfileByID (id, cols) {
   var set = [];
   let j = 0;
   Object.keys(cols).forEach(function (key, i) {
-    //console.log(cols[key])
-    if (cols[key] != '') {
+    if (!isEmpty(cols[key]) ) {                  //&& cols[key] == false cols[key] != '' 
       set.push(key + ' = ($' + (j + 1) + ')');
       j = j + 1;
     }
@@ -91,28 +96,28 @@ function editProfileByID (id, cols) {
   return query.join(' ');
 }
 
-function isEmpty(val){
-  return (val === undefined || val == null || val.length <= 0) ? true : false;
-}
+
 
 router.patch('/:userid/editprofile', async (req, res, next) => {
-  console.log('edit profile', req.body.editdata)
+ // console.log('edit profile', req.body.editdata)
   try {
     // Setup the query
     var query1 = editProfileByID(req.params.userid, req.body.editdata);
-    console.log(query1)
+    //console.log("query1", query1)
 
     // Turn req.body into an array of values
+
     var colValues = Object.keys(req.body.editdata).map(function (key) {
-      if (!isEmpty(req.body.editdata[key]) ) {
+      if (!isEmpty(req.body.editdata[key])) {
         return req.body.editdata[key];
       }
-    }).filter(function (val) {
-      if (!isEmpty(val) ) {
-        return val;
-      }
+    })
+    .filter(function (val) {
+      if (!isEmpty(val)) {
+        return val || val == false;
+      } 
     });
-   //console.log(colValues)
+  //  console.log("colValues", colValues)
     results = await db.query(query1, colValues);
     
     /*const result = await db.query("UPDATE users SET instagram = $1, facebook = $2, bio = $3 \

@@ -169,7 +169,7 @@ app.get('/api/v1/getshortlist/:userid', async (req, res, next) => {
   }
 });
 
-// get customer profile
+// get user profile
 app.get('/api/v1/user/:userid', async (req, res) => {
   let userid = req.params.userid
   if (isNaN(Number(req.params.userid))) {
@@ -180,9 +180,10 @@ app.get('/api/v1/user/:userid', async (req, res) => {
   }
   console.log("get user")
   try {
-    results = await db.query('select firstname, age, educationlevel, jobstatus, city, state, language, religion, community, phonenumber, email, bio, \
-     facebook, instagram from users where users.userid = $1', [userid]);
-      //console.log("get customer profile debug 2 ")
+    results = await db.query('select firstname, age, educationlevel, jobstatus, city, state, language, religion, community, \
+       phonenumber, email, bio, showphone, showinstagram, showfacebook, showcommunity, \
+       facebook, instagram from users where users.userid = $1', [userid]);
+      //console.log("get user profile debug 2 ")
       res.status(200).json({
         status: "success",
         length: results.rows.length,
