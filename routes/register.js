@@ -35,12 +35,11 @@ routerRegister.post('/', async (req, res) => {
         if (userExists.rows[0].exists) {
           return res.status(400).send("User with that email already exists");
         }
-         
-         
+                
         //Create new user
         const { age, gender, educationlevel, jobstatus, city, state, 
                 language, religion, community, 
-                phonenumber, email, password, dateofcreation
+                phonenumber, email, password
               } = req.body;
 
     //    console.log("req.body", req.body)
@@ -53,6 +52,8 @@ routerRegister.post('/', async (req, res) => {
 
         console.log("here 2", salt)
         const passwordb = await bcrypt.hash(password, salt);
+
+        const dateofcreation = (new Date()).toISOString().substring(0, 10).toString();
 
         console.log("here 3", firstname, lastname, age, gender, educationlevel, jobstatus, city, state, language, religion, community, phonenumber,
         email, dateofcreation)
