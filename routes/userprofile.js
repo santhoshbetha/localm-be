@@ -96,8 +96,6 @@ function editProfileByID (id, cols) {
   return query.join(' ');
 }
 
-
-
 router.patch('/:userid/editprofile', async (req, res, next) => {
  // console.log('edit profile', req.body.editdata)
   try {

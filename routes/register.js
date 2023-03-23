@@ -8,6 +8,11 @@ const winston = require("winston");
 //export const routerRegister = express.Router();
 routerRegister = express.Router();
 
+function calcAge(dateString) {
+  var birthday = +new Date(dateString);
+  return ~~((Date.now() - birthday) / (31557600000));
+}
+
 routerRegister.post('/', async (req, res) => {
   console.log("REGISTER POST", req.body.email)
    /* const schema = Joi.object({
@@ -37,7 +42,7 @@ routerRegister.post('/', async (req, res) => {
         }
                 
         //Create new user
-        const { age, gender, educationlevel, jobstatus, city, state, 
+        const { gender, educationlevel, jobstatus, city, state, 
                 language, religion, community, 
                 phonenumber, email, password
               } = req.body;
@@ -54,16 +59,22 @@ routerRegister.post('/', async (req, res) => {
         const passwordb = await bcrypt.hash(password, salt);
 
         const dateofcreation = (new Date()).toISOString().substring(0, 10).toString();
+        const dateofbirth = req.body.dob;
+        
 
-        console.log("here 3", firstname, lastname, age, gender, educationlevel, jobstatus, city, state, language, religion, community, phonenumber,
+        console.log("here 3", firstname, lastname, gender, educationlevel, jobstatus, city, state, language, religion, community, phonenumber,
         email, dateofcreation)
+
+        const age = calcAge('1994-06-14')
+        console.log("dateofbirth: ", dateofbirth, "age: ", age)
         //await user.save();
-        const user = await db.query("INSERT INTO users (userid, firstname, lastname, age, gender, educationlevel, jobstatus, city, state, language, \
+        const user = await db.query("INSERT INTO users (userid, firstname, lastname, dateofbirth, age, gender, educationlevel, jobstatus, city, state, language, \
           religion, community, phonenumber, email, password, dateofcreation) \
-          VALUES (nextval('user_seq'), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING userid",
+          VALUES (nextval('user_seq'), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING userid",
           [ 
             firstname,
             lastname,
+            dateofbirth,
             age,
             gender,
             educationlevel,
