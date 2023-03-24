@@ -65,7 +65,7 @@ routerRegister.post('/', async (req, res) => {
         console.log("here 3", firstname, lastname, gender, educationlevel, jobstatus, city, state, language, religion, community, phonenumber,
         email, dateofcreation)
 
-        const age = calcAge('1994-06-14')
+        const age = calcAge(dateofbirth.toString())
         console.log("dateofbirth: ", dateofbirth, "age: ", age)
         //await user.save();
         const user = await db.query("INSERT INTO users (userid, firstname, lastname, dateofbirth, age, gender, educationlevel, jobstatus, city, state, language, \
@@ -91,10 +91,11 @@ routerRegister.post('/', async (req, res) => {
           ]);
 
         console.log("here 4:", user.rows[0].userid)
+        console.log("here 4.1:", user.rows[0].userid, firstname)
         
         const secretKey = process.env.LOCALM_SECRET_KEY
         console.log("here 5")
-        const token = jwt.sign({ _id: user.rows[0].userid, name: user.name, email: user.email}, secretKey);
+        const token = jwt.sign({ _id: user.rows[0].userid, firstname: firstname, email: email}, secretKey);
 
         console.log("here 6")
 

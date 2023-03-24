@@ -26,7 +26,7 @@ routerLogin.post('/', async (req, res) => {
         //user exists?
         //let user = await User.findOne({email: req.body.email});
 
-       let user = await db.query('SELECT userid, password FROM users where email = $1', [req.body.email]);
+       let user = await db.query('SELECT userid, firstname, password FROM users where email = $1', [req.body.email]);
        console.log("POST LOGIN 2")
        // console.log("here 1.1", user)
         if (!user) {
@@ -49,11 +49,11 @@ routerLogin.post('/', async (req, res) => {
                 message: "Invalid email or password",
             });
         }
-        console.log("POST LOGIN 5")
+        console.log("POST LOGIN 5", user.rows[0].firstname)
       //  console.log("here 3", { _id: user._id, firstname: user.firstname, email: user.email})
 
         const secretKey = process.env.LOCALM_SECRET_KEY
-        const token = await jwt.sign({ _id: user.rows[0].userid, firstname: user.firstname, email: user.email}, secretKey);
+        const token = await jwt.sign({ _id: user.rows[0].userid, firstname: user.rows[0].firstname, email: req.body.email}, secretKey);
 
         console.log("POST LOGIN 6")
         
