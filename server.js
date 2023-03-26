@@ -6,7 +6,6 @@ const routerRegister = require("./routes/register");
 const routerLogin = require("./routes/login");
 const Joi = require("joi");
 const fs = require('fs');
-
 const userprofile = require("./routes/userprofile");
 const formData = require('express-form-data');
 const routerImage = require("./routes/imageupload");
@@ -40,31 +39,86 @@ function isEmpty(val){
   return (val === undefined || val == null || val.length <= 0) ? true : false;
 }
 
+function createSearchQuery(cols) {
+  var query = ['SELECT userid, firstname, age, educationlevel, community FROM users where gender !='];
+  query.push('$1');
+
+  // Create another array storing each set command
+  // and assigning a number value for parameterized query
+  var set = [];
+  let j = 1;
+  Object.keys(cols).forEach(function (key, i) {
+    if (cols[key] != 'All') {
+      set.push('AND ' + key + ' = ($' + (j + 1) + ')');
+      j = j + 1;
+    }
+  });
+  query.push(set.join(' '));
+
+  // Add the AND age BETWEEN $X AND $Y
+  query.push('AND age BETWEEN ' + '($' + (j + 1) + ')' + ' AND ' +  '($' + (j + 2) + ')');
+
+  
+  // Add earth_distance check
+  query.push(' AND earth_distance(ll_to_earth (' + '($' + (j + 3) + ')' + ',' + '($' + (j + 4) + ')' +'), ll_to_earth (latitude, longitude)) < ' + '($' + (j + 5) + ')');
+
+
+  // Return a complete query string
+  return query.join(' ');
+}
+
 //Search
-app.get('/api/v1/search/:userid', async (req, res, next) => {
+app.post('/api/v1/search/:userid', async (req, res, next) => {
   console.log('search', req.params.userid)
   if (isNaN(Number(req.params.userid))) {
-    console.log("inside null check search")
     return res.status(500).json(
-      {message: "Error: " + "Get users error"}
+      {message: "Error: " + "Search error"}
     );
   }
-  
+  console.log(req.body.searchdata)
   try {
-      //GET the user gender
-    const results1 = await db.query('SELECT gender FROM users where userid = $1', [req.params.userid]);
+    //GET the user gender
+    const results1 = await db.query('SELECT gender, latitude, longitude FROM users where userid = $1', [req.params.userid]);
     const gender = results1.rows[0].gender;
-    console.log(gender)
+    const lat = results1.rows[0].latitude;
+    const long = results1.rows[0].longitude;
 
-    const results = await db.query('SELECT userid, firstname, age, educationlevel, community FROM users where gender != $1', [gender]);
-      //console.log("search data ", results)
+    //console.log(gender, lat, long)
 
+    var cols = {
+                religion: req.body.searchdata.religion,
+                language: req.body.searchdata.language,
+                educationlevel: req.body.searchdata.educationlevel,
+                jobstatus: req.body.searchdata.jobstatus == true ? 't' : 'f',
+               }
+
+    var query1 = createSearchQuery(cols);
+
+    var colValues = Object.keys(cols).map(function (key) {
+      if (cols[key] != 'All') {
+        return cols[key];
+      }
+    })
+    .filter(function (val) {
+      if (!isEmpty(val)) {
+        return val || val == false;
+      } 
+    });
+    colValues.push(req.body.searchdata.agefrom)
+    colValues.push(req.body.searchdata.ageto)
+    colValues = [gender, ...colValues, lat, long, req.body.searchdata.searchdistance];  //prepend gender
+
+    console.log("query1:", query1)
+    console.log("colValues:", colValues)
+    const results = await db.query(query1 , colValues);
+
+     // console.log("results:", results)
       res.status(200).json({
         status: "success",
         length: results.rows.length,
         data: {
           userdata: results.rows
-        }
+      }
     })
   } catch (error) {
     res.status(500).json(
@@ -107,7 +161,6 @@ app.get('/api/v1/getshortlist/:userid', async (req, res, next) => {
       {message: "Error: " + "Get users error"}
     );
   }
-  console.log("after null check")
 
   try {
 
@@ -137,7 +190,7 @@ app.get('/api/v1/getshortlist/:userid', async (req, res, next) => {
              })
     }
     var query1 = createqueryString(shortlistuserids);
-    console.log("query:", query1)
+    //console.log("query:", query1)
  
     // Turn req.body into an array of values
     var colValues = Object.keys(shortlistuserids).map(function (key) {
@@ -150,7 +203,7 @@ app.get('/api/v1/getshortlist/:userid', async (req, res, next) => {
       }
     });    
 
-    console.log("colValues:", colValues)
+   // console.log("colValues:", colValues)
     
     const results = await db.query(query1, colValues);
     // /  console.log("search data ", results)
@@ -224,13 +277,8 @@ app.patch('/api/v1/user/:userid/addtoshortlist', async (req, res) => {
                  [`${req.body.useridtoadd}`, req.params.userid ]);
   }
 
-           // console.log("resuls", results)
-
   res.status(201).json({
-      status: "success",
-    // // data: {
-       //   restaurant: results.rows[0],
-    //  }
+      status: "success"
   })
 })
 
@@ -257,10 +305,7 @@ app.patch('/api/v1/user/:userid/removefromshortlist', async (req, res) => {
  // }
 
   res.status(201).json({
-      status: "success",
-    // // data: {
-       //   restaurant: results.rows[0],
-    //  }
+      status: "success"
   })
 })
   
