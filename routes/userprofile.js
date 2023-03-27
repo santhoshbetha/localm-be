@@ -3,9 +3,10 @@ const winston = require("winston");
 const router = express.Router();
 const fs = require('fs')
 const db = require('../db')
+const auth = require('../middleware/auth')
 
 //Search
-router.get('/:userid/profiledata', async (req, res, next) => {
+router.get('/:userid/profiledata', auth, async (req, res, next) => {
   console.log('get profiledata', req.params.userid)
   try {
     results = await db.query('SELECT firstname, lastname, bio, email, phonenumber, instagram, facebook, longitude, shortlist \
@@ -96,7 +97,7 @@ function editProfileByID (id, cols) {
   return query.join(' ');
 }
 
-router.patch('/:userid/editprofile', async (req, res, next) => {
+router.patch('/:userid/editprofile', auth, async (req, res, next) => {
  // console.log('edit profile', req.body.editdata)
   try {
     // Setup the query

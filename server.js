@@ -9,7 +9,8 @@ const fs = require('fs');
 const userprofile = require("./routes/userprofile");
 const formData = require('express-form-data');
 const routerImage = require("./routes/imageupload");
-const db = require('./db')
+const db = require('./db');
+const auth = require('./middleware/auth')
 
 //env config
 dotenv.config()
@@ -68,14 +69,14 @@ function createSearchQuery(cols) {
 }
 
 //Search
-app.post('/api/v1/search/:userid', async (req, res, next) => {
-  console.log('search', req.params.userid)
-  if (isNaN(Number(req.params.userid))) {
+app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
+  console.log('search userid:', req.params.userid)
+  if (isNaN(Number(req.params.userid)) || isEmpty(req.params.userid)) {
     return res.status(500).json(
       {message: "Error: " + "Search error"}
     );
   }
-  console.log(req.body.searchdata)
+  console.log("search data:", req.body.searchdata)
   try {
     //GET the user gender
     const results1 = await db.query('SELECT gender, latitude, longitude FROM users where userid = $1', [req.params.userid]);
@@ -152,7 +153,7 @@ function createqueryString (cols) {
   return query.join(' ');
 }
 
-app.get('/api/v1/getshortlist/:userid', async (req, res, next) => {
+app.get('/api/v1/getshortlist/:userid', auth, async (req, res, next) => {
   console.log('getshortlist', req.params.userid)
 
   if (isNaN(Number(req.params.userid)) ) {
