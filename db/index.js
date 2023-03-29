@@ -1,14 +1,14 @@
 const { Pool } = require('pg')
 
 const pool = new Pool({
-    user: 'rijbzaqo',
-    host: 'isilo.db.elephantsql.com',
-    database: 'rijbzaqo',
-    password: 'vHp4AJv9ECNcFzS-MUsZXdYEqN8YIz18',
+    user: 'santhoshbetha',
+    host: 'ep-muddy-forest-977794.ap-southeast-1.aws.neon.tech',
+    database: 'neondb',
+    password: 'apsqcb5Fe4IY',
     port: 5432,
+    ssl: true
   }
 )
-//postgres://rijbzaqo:vHp4AJv9ECNcFzS-MUsZXdYEqN8YIz18@isilo.db.elephantsql.com/rijbzaqo
  
 module.exports = {
   query: (text, params) => pool.query(text, params),
