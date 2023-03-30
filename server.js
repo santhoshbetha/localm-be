@@ -164,11 +164,9 @@ app.get('/api/v1/getshortlist/:userid', auth, async (req, res, next) => {
   }
 
   try {
-
-    const results2 = await db.query('SELECT shortlist FROM users WHERE userid = $1', [req.params.userid]);
-
-    const shortlistuserids = results2.rows[0].shortlist;
-    console.log("shortlistuserids: ",shortlistuserids.length)
+    let results2 = []
+    results2 = await db.query('SELECT shortlist FROM users WHERE userid = $1', [Number(req.params.userid)]);
+    const shortlistuserids = results2?.rows[0].shortlist;
     /*console.log({shortlistuserids}, typeof({shortlistuserids}))
     console.log( ...shortlistuserids.join(',').split(' '))
     console.log({...shortlistuserids.join(',').split(' ')}[0])
@@ -176,12 +174,10 @@ app.get('/api/v1/getshortlist/:userid', auth, async (req, res, next) => {
     console.log("here",  Array.from(shortlistuserids))
     console.log("here 2",   [shortlistuserids.join(',')])*/
 
-    
    /* const results = await db.query('SELECT userid, firstname, age, educationlevel, community FROM users where userid IN ($1,$2, $3) \
                            ',   [ shortlistuserids[0], shortlistuserids[1], shortlistuserids[2] ]
                          );*/
-
-    if (shortlistuserids.length == 0) {
+    if (results2.rows[0].shortlist == null || shortlistuserids?.length == 0) {
       return res.status(200).json({
                status: "success",
                length: 0,
