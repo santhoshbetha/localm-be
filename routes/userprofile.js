@@ -10,8 +10,8 @@ router.get('/:userid/profiledata', auth, async (req, res, next) => {
   console.log('get profiledata', req.params.userid)
   try {
     results = await db.query('SELECT firstname, lastname, bio, email, phonenumber, instagram, facebook, longitude, shortlist \
-                                     FROM users \
-                          WHERE userid = $1', [req.params.userid]);
+                              FROM users \
+                              WHERE userid = $1', [req.params.userid]);
      // console.log("profile data ", results)
       res.status(200).json({
         status: "success",
@@ -30,7 +30,7 @@ router.get('/:userid/profiledata', auth, async (req, res, next) => {
 
 //router.post('/:username/geodata', async (req, res) => {
 router.patch('/:userid/:geodata', async (req, res, next) => {
-    if (req.params.geodata === 'editprofile') {
+    if (req.params.geodata === 'editprofile' || req.params.geodata === 'editbio') {
       return next()
     }
     console.log("here", req.params)
@@ -98,6 +98,9 @@ function editProfileByID (id, cols) {
 }
 
 router.patch('/:userid/editprofile', auth, async (req, res, next) => {
+  if (req.params.editdata === 'editbio') {
+    return next()
+  }
  // console.log('edit profile', req.body.editdata)
   try {
     // Setup the query
@@ -140,10 +143,30 @@ router.patch('/:userid/editprofile', auth, async (req, res, next) => {
   }
 })
 
+router.patch('/:userid/editbio', auth, async (req, res, next) => {
+    console.log('edit bio', req.body.editdata)
+   try {
+     const result = await db.query("UPDATE users SET bio = $1 where userid = $2",
+     [ 
+       req.body.editdata.bio,
+       req.params.userid
+     ]);
+
+     res.status(201).json({
+       status: "success",
+       message: "Edit bio successful"
+     })
+   } catch (error) {
+     res.status(500).json(
+       {message: "Error: " + "Post edit bio"}
+     );
+     winston.error(error.message);
+   }
+})
+
 router.post('/:username/profiledata', async (req, res) => {
     console.log('profile data save')
 });
-
 
 module.exports = router;
   

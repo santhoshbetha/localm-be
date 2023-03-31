@@ -87,10 +87,10 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
     //console.log(gender, lat, long)
 
     var cols = {
-                religion: req.body.searchdata.religion,
-                language: req.body.searchdata.language,
-                educationlevel: req.body.searchdata.educationlevel,
-                jobstatus: req.body.searchdata.jobstatus == true ? 't' : 'f',
+                religion: req.body.searchdata?.religion,
+                language: req.body.searchdata?.language,
+                educationlevel: req.body.searchdata?.educationlevel,
+                jobstatus: req.body.searchdata?.jobstatus == true ? 't' : 'f',
                }
 
     var query1 = createSearchQuery(cols);
@@ -105,9 +105,9 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
         return val || val == false;
       } 
     });
-    colValues.push(req.body.searchdata.agefrom)
-    colValues.push(req.body.searchdata.ageto)
-    colValues = [gender, ...colValues, lat, long, req.body.searchdata.searchdistance];  //prepend gender
+    colValues.push(req.body.searchdata?.agefrom)
+    colValues.push(req.body.searchdata?.ageto)
+    colValues = [gender, ...colValues, lat, long, req.body.searchdata?.searchdistance];  //prepend gender
 
     console.log("query1:", query1)
     console.log("colValues:", colValues)
@@ -199,11 +199,8 @@ app.get('/api/v1/getshortlist/:userid', auth, async (req, res, next) => {
         return val;
       }
     });    
-
-   // console.log("colValues:", colValues)
     
     const results = await db.query(query1, colValues);
-    // /  console.log("search data ", results)
       return res.status(200).json({
                status: "success",
                length: results.rows.length,

@@ -51,20 +51,14 @@ routerRegister.post('/', async (req, res) => {
         let firstname = req.body.firstName
         let lastname = req.body.lastName
 
-        console.log("here 1")
         //Hash the password 
         const salt = await bcrypt.genSalt(10);
 
-        console.log("here 2", salt)
         const passwordb = await bcrypt.hash(password, salt);
 
         const dateofcreation = (new Date()).toISOString().substring(0, 10).toString();
         const dateofbirth = req.body.dob;
         
-
-        console.log("here 3", firstname, lastname, gender, educationlevel, jobstatus, city, state, language, religion, community, phonenumber,
-        email, dateofcreation)
-
         const age = calcAge(dateofbirth.toString())
         console.log("dateofbirth: ", dateofbirth, "age: ", age)
         //await user.save();
@@ -89,15 +83,10 @@ routerRegister.post('/', async (req, res) => {
             passwordb,
             dateofcreation
           ]);
-
-        console.log("here 4:", user.rows[0].userid)
-        console.log("here 4.1:", user.rows[0].userid, firstname)
         
         const secretKey = process.env.LOCALM_SECRET_KEY
-        console.log("here 5")
-        const token = jwt.sign({ _id: user.rows[0].userid, firstname: firstname, email: email}, secretKey);
 
-        console.log("here 6")
+        const token = jwt.sign({ _id: user.rows[0].userid, firstname: firstname, email: email}, secretKey);
 
         //res.send(token)  //token is printed here  which is used for auth in middle ware
         res.status(200).json({
@@ -106,6 +95,7 @@ routerRegister.post('/', async (req, res) => {
         })
 
     } catch(error) {
+      console.log("Register Err Here", error)
       res.status(500).json(
         {message: error.message}
       );
