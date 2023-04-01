@@ -41,7 +41,7 @@ function isEmpty(val){
 }
 
 function createSearchQuery(cols) {
-  var query = ['SELECT userid, firstname, age, educationlevel, community FROM users where gender !='];
+  var query = ['SELECT userid, uuid, firstname, age, educationlevel, community FROM users where gender !='];
   query.push('$1');
 
   // Create another array storing each set command
@@ -58,11 +58,9 @@ function createSearchQuery(cols) {
 
   // Add the AND age BETWEEN $X AND $Y
   query.push('AND age BETWEEN ' + '($' + (j + 1) + ')' + ' AND ' +  '($' + (j + 2) + ')');
-
   
   // Add earth_distance check
   query.push(' AND earth_distance(ll_to_earth (' + '($' + (j + 3) + ')' + ',' + '($' + (j + 4) + ')' +'), ll_to_earth (latitude, longitude)) < ' + '($' + (j + 5) + ')');
-
 
   // Return a complete query string
   return query.join(' ');
@@ -131,10 +129,10 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
 
 function createqueryString (cols) {
   // Setup static beginning of query
-  var query = ['SELECT userid, firstname, age, educationlevel, community FROM users'];
+  var query = ['SELECT userid, uuid, firstname, age, educationlevel, community FROM users'];
   
   // Add the WHERE
-  query.push('where userid IN (' );
+  query.push('where uuid IN (' );
   // Create another array storing each set command
   // and assigning a number value for parameterized query
   var set = [];
@@ -250,7 +248,7 @@ app.get('/api/v1/user/:userid', async (req, res) => {
 //https://github.com/brianc/node-postgres/issues/2268
 // add userid to shortlist
 app.patch('/api/v1/user/:userid/addtoshortlist', async (req, res) => {
-  console.log("POST to SHORTLIST:", req.params.userid, req.body.useridtoadd)
+  console.log("POST to SHORTLIST:", req.params.userid, req.body.uuidtoadd)
 
   if (isNaN(Number(req.params.userid))) {
     console.log("remove from list")
@@ -264,13 +262,12 @@ app.patch('/api/v1/user/:userid/addtoshortlist', async (req, res) => {
   console.log('count', count.rows[0].count)
 
   if (count.rows[0].count == 0) {
-    const results = await db.query("UPDATE users SET shortlist=$1::INT[] where userid = $2",
-                 [[`${req.body.useridtoadd}`], req.params.userid]);
+    const results = await db.query("UPDATE users SET shortlist=$1::UUID[] where userid = $2",
+                 [[`${req.body.uuidtoadd}`], req.params.userid]);
   } else {
     const results = await db.query("UPDATE users SET shortlist = ARRAY_APPEND(shortlist, $1) WHERE userid = $2",
-                 [`${req.body.useridtoadd}`, req.params.userid ]);
+                 [`${req.body.uuidtoadd}`, req.params.userid ]);
   }
-
   res.status(201).json({
       status: "success"
   })
@@ -295,7 +292,7 @@ app.patch('/api/v1/user/:userid/removefromshortlist', async (req, res) => {
   //               [[`${req.body.useridtoremove}`], req.params.userid ]);
 //  } else {
     const results = await db.query("UPDATE users SET shortlist = ARRAY_REMOVE(shortlist, $1) WHERE userid = $2",
-                 [`${req.body.useridtoremove}`, req.params.userid ]);
+                 [`${req.body.uuidtoremove}`, req.params.userid ]);
  // }
 
   res.status(201).json({
