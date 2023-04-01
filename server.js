@@ -41,7 +41,7 @@ function isEmpty(val){
 }
 
 function createSearchQuery(cols) {
-  var query = ['SELECT userid, uuid, firstname, age, educationlevel, community FROM users where gender !='];
+  var query = ['SELECT userid, shortid, firstname, age, educationlevel, community FROM users where gender !='];
   query.push('$1');
 
   // Create another array storing each set command
@@ -129,10 +129,10 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
 
 function createqueryString (cols) {
   // Setup static beginning of query
-  var query = ['SELECT userid, uuid, firstname, age, educationlevel, community FROM users'];
+  var query = ['SELECT userid, shortid, firstname, age, educationlevel, community FROM users'];
   
   // Add the WHERE
-  query.push('where uuid IN (' );
+  query.push('where shortid IN (' );
   // Create another array storing each set command
   // and assigning a number value for parameterized query
   var set = [];
@@ -175,7 +175,7 @@ app.get('/api/v1/getshortlist/:userid', auth, async (req, res, next) => {
    /* const results = await db.query('SELECT userid, firstname, age, educationlevel, community FROM users where userid IN ($1,$2, $3) \
                            ',   [ shortlistuserids[0], shortlistuserids[1], shortlistuserids[2] ]
                          );*/
-    if (results2.rows[0].shortlist == null || shortlistuserids?.length == 0) {
+    if (results2.rows[0].shortlist == null || shortlistuserids?.length == 2) {
       return res.status(200).json({
                status: "success",
                length: 0,
@@ -184,19 +184,20 @@ app.get('/api/v1/getshortlist/:userid', auth, async (req, res, next) => {
                }
              })
     }
-    var query1 = createqueryString(shortlistuserids);
+    const shortlistuseridslist = shortlistuserids.replace('{', '').replace('}', '').split(',');
+    var query1 = createqueryString(shortlistuseridslist);
     //console.log("query:", query1)
  
     // Turn req.body into an array of values
-    var colValues = Object.keys(shortlistuserids).map(function (key) {
-      if (!isEmpty(shortlistuserids[key]) ) {
-        return shortlistuserids[key];
+    var colValues = Object.keys(shortlistuseridslist).map(function (key) {
+      if (!isEmpty(shortlistuseridslist[key]) ) {
+        return shortlistuseridslist[key];
       }
     }).filter(function (val) {
       if (!isEmpty(val) ) {
         return val;
       }
-    });    
+    });   
     
     const results = await db.query(query1, colValues);
       return res.status(200).json({
@@ -248,7 +249,7 @@ app.get('/api/v1/user/:userid', async (req, res) => {
 //https://github.com/brianc/node-postgres/issues/2268
 // add userid to shortlist
 app.patch('/api/v1/user/:userid/addtoshortlist', async (req, res) => {
-  console.log("POST to SHORTLIST:", req.params.userid, req.body.uuidtoadd)
+  console.log("POST to SHORTLIST:", req.params.userid, req.body.shortidtoadd)
 
   if (isNaN(Number(req.params.userid))) {
     console.log("remove from list")
@@ -262,11 +263,11 @@ app.patch('/api/v1/user/:userid/addtoshortlist', async (req, res) => {
   console.log('count', count.rows[0].count)
 
   if (count.rows[0].count == 0) {
-    const results = await db.query("UPDATE users SET shortlist=$1::UUID[] where userid = $2",
-                 [[`${req.body.uuidtoadd}`], req.params.userid]);
+    const results = await db.query("UPDATE users SET shortlist=$1::SHORTKEY[] where userid = $2",
+                 [[`${req.body.shortidtoadd}`], req.params.userid]);
   } else {
     const results = await db.query("UPDATE users SET shortlist = ARRAY_APPEND(shortlist, $1) WHERE userid = $2",
-                 [`${req.body.uuidtoadd}`, req.params.userid ]);
+                 [`${req.body.shortidtoadd}`, req.params.userid ]);
   }
   res.status(201).json({
       status: "success"
@@ -292,7 +293,7 @@ app.patch('/api/v1/user/:userid/removefromshortlist', async (req, res) => {
   //               [[`${req.body.useridtoremove}`], req.params.userid ]);
 //  } else {
     const results = await db.query("UPDATE users SET shortlist = ARRAY_REMOVE(shortlist, $1) WHERE userid = $2",
-                 [`${req.body.uuidtoremove}`, req.params.userid ]);
+                 [`${req.body.shortidtoremove}`, req.params.userid ]);
  // }
 
   res.status(201).json({
