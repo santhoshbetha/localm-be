@@ -9,7 +9,8 @@ const auth = require('../middleware/auth')
 router.get('/:userid/profiledata', auth, async (req, res, next) => {
   console.log('get profiledata', req.params.userid)
   try {
-    results = await db.query('SELECT firstname, lastname, bio, email, phonenumber, instagram, facebook, longitude, shortlist, shortid \
+    results = await db.query('SELECT firstname, lastname, bio, email, phonenumber, instagram, facebook, longitude, shortlist, shortid, \
+                              showphone, showinstagram, showfacebook, showcommunity \
                               FROM users \
                               WHERE userid = $1', [req.params.userid]);
      // console.log("profile data ", results)
