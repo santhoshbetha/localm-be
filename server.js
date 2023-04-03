@@ -74,6 +74,7 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
       {message: "Error: " + "Search error"}
     );
   }
+
   console.log("search data:", req.body.searchdata)
   try {
     //GET the user gender
@@ -97,8 +98,7 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
       if (cols[key] != 'All') {
         return cols[key];
       }
-    })
-    .filter(function (val) {
+    }).filter(function (val) {
       if (!isEmpty(val)) {
         return val || val == false;
       } 
@@ -111,6 +111,18 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
     console.log("colValues:", colValues)
     const results = await db.query(query1 , colValues);
 
+   /* const results = await db.query('SELECT userid, firstname, age, educationlevel, community FROM users where gender != $1 \
+                  AND religion = $2 AND language = $3 AND educationlevel = $4 AND jobstatus = $5 \
+                  AND age BETWEEN $6 AND $7', 
+                  [
+                    gender,
+                    req.body.searchdata?.religion,
+                    req.body.searchdata?.language,
+                    req.body.searchdata?.educationlevel,
+                    req.body.searchdata?.jobstatus == true ? 't' : 'f',
+                    req.body.searchdata?.agefrom,
+                    req.body.searchdata?.ageto
+                  ]);*/
      // console.log("results:", results)
       res.status(200).json({
         status: "success",
@@ -300,6 +312,55 @@ app.patch('/api/v1/user/:userid/removefromshortlist', async (req, res) => {
       status: "success"
   })
 })
+
+function isNumber(n) { 
+  return !isNaN(parseFloat(n)) && !isNaN(n - 0) 
+}
+
+const digits = (num, count = 0) => {
+  if(num){
+     return digits(Math.floor(num / 10), ++count);
+  };
+  return count;
+};
+
+//Profile Search ${url}/query/${searchtext}
+app.get('/api/v1/query', auth, async (req, res, next) => {
+  console.log('query:', req.query.search)
+  var result;
+  try {
+    if (isNumber(req.query.search)) {
+      //phone number
+      if (digits(Number(req.query.search)) == 10) {
+        result = await db.query('SELECT userid, shortid, firstname \
+                 FROM users WHERE phonenumber = $1', [Number(req.query.search)]);
+      //user id
+      } else {
+        result = await db.query('SELECT userid, shortid, firstname \
+                 FROM users WHERE userid = $1', [Number(req.query.search)]);
+      }
+    } else {
+      // email
+      //const city = req.query.search.toLowerCase()
+      result = await db.query('SELECT userid, shortid, firstname \
+                     FROM users WHERE email = $1', [req.query.search]);
+    }
+    console.log("search result", result.rows.length)
+    return res.status(200).json({
+      status: "success",
+      length: result.rows.length,
+      data: {
+        userdata: result.rows
+      }
+    })
+  } catch (error) {
+    res.status(500).json(
+      {message: "Error: " + "query error"}
+    );
+    winston.error(error.message);
+  }
+})
+
   
 //server listening
 const port = process.env.PORT || 8000
