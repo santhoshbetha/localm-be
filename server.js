@@ -75,9 +75,9 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
     );
   }
 
-  console.log("search data:", req.body.searchdata)
+  //console.log("search data:", req.body.searchdata)
   try {
-    //GET the user gender
+    //GET the user gender /longitude /latitude
     const results1 = await db.query('SELECT gender, latitude, longitude FROM users where userid = $1', [req.params.userid]);
     const gender = results1.rows[0].gender;
     const lat = results1.rows[0].latitude;

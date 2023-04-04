@@ -95,7 +95,7 @@ routerRegister.post('/', async (req, res) => {
         })
 
     } catch(error) {
-      console.log("Register Err Here", error)
+      console.log("Register Err", error)
       res.status(500).json(
         {message: error.message}
       );
