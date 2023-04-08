@@ -11,7 +11,9 @@ router.get('/:userid/profiledata', auth, async (req, res, next) => {
   try {
     results = await db.query('SELECT firstname, lastname, bio, email, gender, phonenumber, instagram,  \
                               facebook, longitude, shortlist, shortid, \
-                              showphone, showinstagram, showfacebook, showcommunity \
+                              showphone, showinstagram, showfacebook, showcommunity ,\
+                              city, \
+                              addons \
                               FROM users \
                               WHERE userid = $1', [req.params.userid]);
      // console.log("profile data ", results)
@@ -32,7 +34,7 @@ router.get('/:userid/profiledata', auth, async (req, res, next) => {
 
 //router.post('/:username/geodata', async (req, res) => {
 router.patch('/:userid/:geodata', async (req, res, next) => {
-    if (req.params.geodata === 'editprofile' || req.params.geodata === 'editbio') {
+    if (req.params.geodata === 'editprofile' || req.params.geodata === 'editbio' || req.params.geodata === 'addaddons') {
       return next()
     }
     console.log("here", req.params)
@@ -100,9 +102,9 @@ function editProfileByID (id, cols) {
 }
 
 router.patch('/:userid/editprofile', auth, async (req, res, next) => {
-  if (req.params.editdata === 'editbio') {
-    return next()
-  }
+  //if (req.params.editdata === 'editbio'  || req.params.editdata === 'addaddons') {
+  //  return next()
+ // }
  // console.log('edit profile', req.body.editdata)
   try {
     // Setup the query
@@ -146,7 +148,7 @@ router.patch('/:userid/editprofile', auth, async (req, res, next) => {
 })
 
 router.patch('/:userid/editbio', auth, async (req, res, next) => {
-    console.log('edit bio', req.body.editdata)
+   //console.log('edit bio', req.body.editdata)
    try {
      const result = await db.query("UPDATE users SET bio = $1 where userid = $2",
      [ 
@@ -164,6 +166,36 @@ router.patch('/:userid/editbio', auth, async (req, res, next) => {
      );
      winston.error(error.message);
    }
+})
+
+router.patch('/:userid/addaddons', auth, async (req, res, next) => {
+  console.log('addaddons', JSON.stringify(req.body.addonsdata), req.params.userid)
+
+  try {
+
+    const results = await db.query("UPDATE users SET addons = $1 where userid = $2",
+    [JSON.stringify(req.body.addonsdata), req.params.userid]);
+
+   /* const result = await db.query("INSERT INTO users (addons) \
+      VALUES ($1)",
+      [ 
+        JSON.stringify(req.body.addonsdata)
+      ]);*/
+   console.log("after update 1", results)
+    res.status(201).json({
+      status: "success",
+      message: "adoons insert successful"
+    })
+    console.log("after update 2")
+  } catch (error) {
+    console.log("after update error")
+    res.status(500).json(
+      {message: "Error: " + "ADD ADDONS"}
+    );
+    winston.error(error.message);
+  }
+
+
 })
 
 router.post('/:username/profiledata', async (req, res) => {

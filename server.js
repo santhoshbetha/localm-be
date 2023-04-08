@@ -83,8 +83,6 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
     const lat = results1.rows[0].latitude;
     const long = results1.rows[0].longitude;
 
-    //console.log(gender, lat, long)
-
     var cols = {
                 religion: req.body.searchdata?.religion,
                 language: req.body.searchdata?.language,
