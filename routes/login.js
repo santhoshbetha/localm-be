@@ -56,8 +56,14 @@ routerLogin.post('/', async (req, res) => {
         const token = await jwt.sign({ _id: user.rows[0].userid, firstname: user.rows[0].firstname, email: req.body.email}, secretKey);
 
         console.log("POST LOGIN 6")
+        const timeoflogin = new Date(Date.now()+(1000*60*(-(new Date()).getTimezoneOffset()))).toISOString().replace('T',' ').replace('Z','');
+
+        const results = await db.query("UPDATE users SET timeoflogin=$1 where userid = $2",
+                        [
+                            timeoflogin,
+                            user.rows[0].userid
+                        ]);
         
-        //   console.log("here 4",token)
         //res.send(token)  //token is printed here  which is used for auth in middle ware
         res.status(200).json({
             status: "success",
