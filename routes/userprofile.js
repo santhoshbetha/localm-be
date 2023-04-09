@@ -174,28 +174,23 @@ router.patch('/:userid/addaddons', auth, async (req, res, next) => {
   try {
 
     const results = await db.query("UPDATE users SET addons = $1 where userid = $2",
-    [JSON.stringify(req.body.addonsdata), req.params.userid]);
+               [JSON.stringify(req.body.addonsdata), req.params.userid]);
 
    /* const result = await db.query("INSERT INTO users (addons) \
       VALUES ($1)",
       [ 
         JSON.stringify(req.body.addonsdata)
       ]);*/
-   console.log("after update 1", results)
     res.status(201).json({
       status: "success",
       message: "adoons insert successful"
     })
-    console.log("after update 2")
   } catch (error) {
-    console.log("after update error")
     res.status(500).json(
       {message: "Error: " + "ADD ADDONS"}
     );
     winston.error(error.message);
   }
-
-
 })
 
 router.post('/:username/profiledata', async (req, res) => {

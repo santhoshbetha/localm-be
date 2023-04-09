@@ -40,6 +40,7 @@ function isEmpty(val){
   return (val === undefined || val == null || val.length <= 0) ? true : false;
 }
 
+//search query
 function createSearchQuery(cols) {
   var query = ['SELECT userid, shortid, firstname, age, educationlevel, community FROM users where gender !='];
   query.push('$1');
@@ -75,18 +76,36 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
     );
   }
 
-  //console.log("search data:", req.body.searchdata)
+  console.log("search data:", req.body.searchdata)
   try {
     //GET the user gender /longitude /latitude
-    const results1 = await db.query('SELECT gender, latitude, longitude FROM users where userid = $1', [req.params.userid]);
+    const results1 = await db.query('SELECT gender, latitude, longitude, state, addons FROM users where userid = $1', [req.params.userid]);
     const gender = results1.rows[0].gender;
-    const lat = results1.rows[0].latitude;
-    const long = results1.rows[0].longitude;
+    let state = results1.rows[0].state;  //search 'state' although 'city' is passed
+    let lat = results1.rows[0].latitude;
+    let lng = results1.rows[0].longitude;
+
+    console.log("addons::", results1.rows[0].addons)
+
+    const addons = results1.rows[0].addons
+    
+    if (addons != null) {
+      if (req.body.searchdata.city == addons.location2.city2) {
+        state = addons.location2.state2
+        lat = addons.location2.lat
+        lng = addons.location2.lng
+      } else if (req.body.searchdata.city == addons.location3.city3) {
+        state = addons.location3.state3
+        lat = addons.location3.lat
+        lng = addons.location3.lng
+      } 
+    }
 
     var cols = {
                 religion: req.body.searchdata?.religion,
                 language: req.body.searchdata?.language,
                 educationlevel: req.body.searchdata?.educationlevel,
+                state: state,
                 jobstatus: req.body.searchdata?.jobstatus == true ? 't' : 'f',
                }
 
@@ -101,9 +120,10 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
         return val || val == false;
       } 
     });
+
     colValues.push(req.body.searchdata?.agefrom)
     colValues.push(req.body.searchdata?.ageto)
-    colValues = [gender, ...colValues, lat, long, req.body.searchdata?.searchdistance];  //prepend gender
+    colValues = [gender, ...colValues, lat, lng, req.body.searchdata?.searchdistance];  //prepend gender
 
     console.log("query1:", query1)
     console.log("colValues:", colValues)
@@ -137,6 +157,7 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
   }
 });
 
+//shhortlist query
 function createqueryString (cols) {
   // Setup static beginning of query
   var query = ['SELECT userid, shortid, firstname, age, educationlevel, community FROM users'];
@@ -204,7 +225,7 @@ app.get('/api/v1/getshortlist/:userid', auth, async (req, res, next) => {
         return shortlistuseridslist[key];
       }
     }).filter(function (val) {
-      if (!isEmpty(val) ) {
+      if (!isEmpty(val)) {
         return val;
       }
     });   
