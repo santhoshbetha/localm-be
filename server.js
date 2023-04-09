@@ -86,19 +86,19 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
     let lng = results1.rows[0].longitude;
     let community = 'All'
 
-    console.log("addons::", results1.rows[0].addons)
-
     const addons = results1.rows[0].addons
     
     if (addons != null) {
-      if (req.body.searchdata.city == addons.location2.city2) {
-        state = addons.location2.state2
-        lat = addons.location2.lat
-        lng = addons.location2.lng
-      } else if (req.body.searchdata.city == addons.location3.city3) {
-        state = addons.location3.state3
-        lat = addons.location3.lat
-        lng = addons.location3.lng
+      if (req.body.searchdata.city != '') {
+        if (req.body.searchdata.city == addons.location2.city2) {
+          state = addons.location2.state2
+          lat = addons.location2.lat
+          lng = addons.location2.lng
+        } else if (req.body.searchdata.city == addons.location3.city3) {
+          state = addons.location3.state3
+          lat = addons.location3.lat
+          lng = addons.location3.lng
+        }
       }
 
       if (addons.communitySearch == true) {
