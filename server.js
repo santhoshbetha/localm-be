@@ -84,6 +84,7 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
     let state = results1.rows[0].state;  //search 'state' although 'city' is passed
     let lat = results1.rows[0].latitude;
     let lng = results1.rows[0].longitude;
+    let community = 'All'
 
     console.log("addons::", results1.rows[0].addons)
 
@@ -98,7 +99,11 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
         state = addons.location3.state3
         lat = addons.location3.lat
         lng = addons.location3.lng
-      } 
+      }
+
+      if (addons.communitySearch == true) {
+        community = req.body.searchdata.community
+      }
     }
 
     var cols = {
@@ -106,6 +111,7 @@ app.post('/api/v1/search/:userid', auth, async (req, res, next) => {
                 language: req.body.searchdata?.language,
                 educationlevel: req.body.searchdata?.educationlevel,
                 state: state,
+                community: community,
                 jobstatus: req.body.searchdata?.jobstatus == true ? 't' : 'f',
                }
 
